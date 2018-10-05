@@ -1,37 +1,22 @@
-const MongoClient = require('mongodb').MongoClient;
+// const MongoClient = require('mongodb').MongoClient;
+const {MongoClient,ObjectID} = require('mongodb');
 
-MongoClient.connect('mongodb://localhost:27017/TodoApp',(error, client)=>{
+var url = 'mongodb://localhost:27017/TodoApp';
+MongoClient.connect(url,{ useNewUrlParser: true } , (error, client)=>{
     
     if(error){
         return console.log('Cannot connect to mongodb');
     }
+    console.log('Connected to MongoDB server');
 
+    var db = client.db('TodoApp');
+
+    db.collection('todos').find().toArray().then((doc)=>{
+        console.log('Todos');
+        console.log(JSON.stringify(doc,undefined, 2));
+    }, (err)=>{
+            console.log('unable to retrieve records', err);
+        });
     
-    const db = client.db('TodoApp');
-    db.collection('Todos').insertOne({
-        text: 'somthing need to be done',
-        completed: false
-
-    },(err,result)=>{
-        if(error){
-            return console.log('cannot insert todo');
-        }
-
-        console.log('inserted', JSON.stringify(result.ops,undefined,2));
-
-    });
-    
-
-    db.collection('Users').insertOne({
-        name: 'steve',
-        age: 46,
-        location: 'cherry hill'
-    },(err, result)=> {
-        if(error){
-            return console.log('cannot insert user');
-        }
-
-        console.log('a user inserted:', JSON.stringify(result.ops,undefined,2));
-    });
-    client.close();
-});
+    // client.close(()=>{console.log('END');});
+}); 
