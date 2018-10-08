@@ -3,9 +3,19 @@ const expect = require('expect');
 var {app} = require('../server.js');
 const {Todo} = require('../models/Todo.js');
 
+
+var todos = [{
+    text: 'first thing to do'
+},{
+    text: 'secound thing to do'
+}];
+
 beforeEach((done)=>{
-    Todo.remove({}).then(()=> done());
-    
+    Todo.remove({}).then(()=> {
+        return Todo.insertMany(todos);
+    }).then(()=>{
+        done();
+    });
 });
 
 describe('Todo App test', ()=>{
@@ -22,7 +32,7 @@ describe('Todo App test', ()=>{
                 return done(err);
             }
 
-            Todo.find().then((todos)=>{
+            Todo.find({text: 'post test'}).then((todos)=>{
                 expect(todos.length).toBe(1);
                 expect(todos[0].text).toBe('post test');
                 done();
@@ -43,12 +53,22 @@ describe('Todo App test', ()=>{
             }
 
             Todo.find().then((todos)=>{
-                expect(todos.length).toBe(0); 
+                expect(todos.length).toBe(2); 
                 done();
             })
             .catch((e)=>{
                 done(e);
             });
         });
+    });
+
+    it('GET /todos', (done)=>{
+        request(app)
+            .get('/todos')
+            .expect(200)
+            .expect((res)=>{
+                return expect(res.body.todos.length).toBe(3);
+            })
+            .end(done);
     });
 });
