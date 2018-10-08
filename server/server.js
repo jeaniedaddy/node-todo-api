@@ -13,14 +13,25 @@ app.use(bodyParser.json());
 
 app.post('/Todos', (req,res)=>{
     var todo = new Todo({text: req.body.text, completed: req.body.completed});
+    //console.log(req.body.text);
     todo.save().then((doc)=>{
-        console.log(doc);
+        //console.log(doc);
         res.send(doc);
     },(err)=>{
-        res.status(400).send('unable to save');
+        res.status(400).send(err);
     });
 });
 
-app.listen(3000, ()=>{
-    console.log('Server is running on port 3000');
+app.get('/Todos',(req,res)=>{
+    Todo.find().then((todos)=>{
+        res.send({todos});
+    },(err)=>{
+        res.status(400).send(err);
+    });
 });
+
+app.listen(3000, ()=>{ 
+    console.log('Server is running on port 3000');
+}); 
+
+module.exports.app = app; 
