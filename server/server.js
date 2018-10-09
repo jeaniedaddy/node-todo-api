@@ -37,18 +37,38 @@ app.get('/Todos/:id',(req,res)=>{
     
     //check id 404
     if(!ObjectID.isValid(req.params.id)) {
-        res.status(404).send();
+        return res.status(404).send();
     }
    
     Todo.findById(req.params.id).then((todo)=>{
         if(!todo){
-            res.status(404).send();
+            return res.status(404).send();
         }
-        res.status(200).send({todo});
+        res.send({todo});
     }).catch((e)=>{
-        res.status(404).send();
+        console.log('error while find todo by id');
+        res.status(400).send();
     });
-        
+});
+
+app.delete('/Todos/:id',(req,res)=>{
+    var id = req.params.id;
+    if(!ObjectID.isValid(id)){
+        console.log('not valid id');
+        return res.status(404).send();
+    }
+
+    Todo.findByIdAndDelete(id).then((todo)=>{
+        if(!todo){
+            console.log('nothing to delete');
+            return res.status(404).send();
+        }
+        res.send({todo});
+    }).catch((e)=>{
+        console.log('error while deleting')
+        res.status(400).send(e);
+
+    });
 });
 
 app.listen(port, ()=>{ 

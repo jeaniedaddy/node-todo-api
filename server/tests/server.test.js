@@ -107,5 +107,33 @@ describe('Todo App', ()=>{
                 .end(done);
         }); 
     });
+
+    describe('DELETE /todos/:id',()=>{
+        it('should return 404 for invalid(non-object) _id',(done)=>{
+            request(app)
+                .delete('/todo/123')
+                .expect(404)
+                // .expect((res)=>{
+                //     expect(res.body).toBeNull();
+                // })
+                .end(done);
+        });
+        it('should return 200 with object deleted',(done)=>{
+            request(app)
+                .delete(`/todos/${todos[0]._id.toHexString()}`)
+                .expect(200)
+                .expect((res)=>{
+                    expect(res.body.todo.text).toBe('first thing to do');
+                })
+                .end(done);
+        });
+        it('should return 404 with nothing if not found',(done)=>{
+            var hexId = new ObjectID().toHexString();
+            request(app)
+                .delete(`/todo/${hexId}`)
+                .expect(404)
+                .end(done);
+        }); 
+    });
     
 });
