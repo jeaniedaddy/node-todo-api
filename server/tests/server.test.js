@@ -67,7 +67,7 @@ describe('Todo App test', ()=>{
             .get('/todos')
             .expect(200)
             .expect((res)=>{
-                return expect(res.body.todos.length).toBe(3);
+                return expect(res.body.todos.length).toBe(2);
             })
             .end(done);
     });
