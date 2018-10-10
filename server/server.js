@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 var {mongoose} = require('./db/mongoose'); // this mongoose vs the mongoose in model js files. how are they connected?
+var {ObjectID} = require('mongodb');
 
 const {Todo} = require('./models/Todo');
 const {User} = require('./models/User');
 
+const port = process.env.PORT || 3000;
 
 var app = express();
 
@@ -30,8 +32,47 @@ app.get('/Todos',(req,res)=>{
     });
 });
 
-app.listen(3000, ()=>{ 
-    console.log('Server is running on port 3000');
+app.get('/Todos/:id',(req,res)=>{
+    // res.send(req.params);
+    
+    //check id 404
+    if(!ObjectID.isValid(req.params.id)) {
+        return res.status(404).send();
+    }
+   
+    Todo.findById(req.params.id).then((todo)=>{
+        if(!todo){
+            return res.status(404).send();
+        }
+        res.send({todo});
+    }).catch((e)=>{
+        console.log('error while find todo by id');
+        res.status(400).send();
+    });
+});
+
+app.delete('/Todos/:id',(req,res)=>{
+    var id = req.params.id;
+    if(!ObjectID.isValid(id)){
+        console.log('not valid id');
+        return res.status(404).send();
+    }
+
+    Todo.findByIdAndDelete(id).then((todo)=>{
+        if(!todo){
+            console.log('nothing to delete');
+            return res.status(404).send();
+        }
+        res.send({todo});
+    }).catch((e)=>{
+        console.log('error while deleting')
+        res.status(400).send(e);
+
+    });
+});
+
+app.listen(port, ()=>{ 
+    console.log(`Server is running at port ${port}`);
 }); 
 
 module.exports.app = app; 
