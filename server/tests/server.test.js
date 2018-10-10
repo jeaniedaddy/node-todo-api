@@ -10,7 +10,9 @@ var todos = [{
     text: 'first thing to do'
 },{
     _id: new ObjectID(),
-    text: 'secound thing to do'
+    text: 'secound thing to do',
+    completed: true,
+    completedAt: 3333
 }];
 
 beforeEach((done)=>{
@@ -147,6 +149,38 @@ describe('Todo App', ()=>{
                 .expect(404)
                 .end(done);
         }); 
+    });
+
+    describe('PATCH /todos/:id',()=>{
+        it('should update the todo completed',(done)=>{
+            var hexId = todos[0]._id.toHexString();
+            var text = '1st todo completed test';
+            request(app)
+                .patch(`/todos/${hexId}`)
+                .send({text , completed: true})
+                .expect(200)
+                .expect((res)=>{
+                    expect(res.body.todo.text).toBe(text);
+                    expect(res.body.todo.completed).toBe(true);
+                    expect(typeof res.body.todo.completedAt).toBe('number');
+                })
+                .end(done);
+        });
+
+        it('should update the todo uncompleted',(done)=>{
+            var hexId = todos[1]._id.toHexString();
+            var text = '2nd todo uncompleted test';
+            request(app)
+                .patch(`/todos/${hexId}`)
+                .send({text, completed: false})
+                .expect(200)
+                .expect((res)=>{
+                    expect(res.body.todo.text).toBe(text);
+                    expect(res.body.todo.completed).toBe(false);
+                    expect(res.body.todo.completedAt).toBeFalsy();
+                })
+                .end(done); 
+        });
     });
     
 });
