@@ -125,7 +125,20 @@ describe('Todo App', ()=>{
                 .expect((res)=>{
                     expect(res.body.todo.text).toBe('first thing to do');
                 })
-                .end(done);
+                .end((err,res)=>{
+                    if(err){
+                        return done(err);
+                    }
+
+                    Todo.findById(todos[0]._id.toHexString())
+                    .then((todo)=>{
+                        expect(todo).toBeNull();
+                        done();
+                    })
+                    .catch((e)=>{
+                        done(e);
+                    });
+                });
         });
         it('should return 404 with nothing if not found',(done)=>{
             var hexId = new ObjectID().toHexString();
@@ -138,4 +151,3 @@ describe('Todo App', ()=>{
     
 });
 
-describe('test',()=>{});
