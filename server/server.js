@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 var {mongoose} = require('./db/mongoose'); // this mongoose vs the mongoose in model js files. how are they connected?
@@ -69,6 +70,41 @@ app.delete('/Todos/:id',(req,res)=>{
         res.status(400).send(e);
 
     });
+});
+
+app.patch('/Todos/:id',(req, res)=>{
+    var id = req.params.id;
+    var body = _.pick(req.body, ["text", "completed"]);
+
+    if( _.isBoolean(body.completed) && body.completed === true){
+        body.completed = true; 
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false; 
+        body.completedAt = null; 
+    }
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Todo.findByIdAndUpdate(id, 
+        {$set: { 
+            text: body.text,
+            completed: body.completed,
+            completedAt: body.completedAt
+    }},{new: true})
+    .then((todo)=>{
+        if(!todo){
+            return res.status(404).send();
+        }
+        res.send({todo});
+    })
+    .catch((e)=>{
+        res.status(400).send();
+    });
+
+
 });
 
 app.listen(port, ()=>{ 

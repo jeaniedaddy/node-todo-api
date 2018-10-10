@@ -132,7 +132,7 @@ describe('Todo App', ()=>{
 
                     Todo.findById(todos[0]._id.toHexString())
                     .then((todo)=>{
-                        expect(todo).toBeNull();
+                        expect(todo).toBeFalsy();//toNotExist;
                         done();
                     })
                     .catch((e)=>{
