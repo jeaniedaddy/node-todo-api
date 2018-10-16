@@ -106,9 +106,19 @@ app.patch('/Todos/:id',(req, res)=>{
     .catch((e)=>{
         res.status(400).send();
     });
-
-
 });
+
+app.post('/users', (req,res) =>{
+    var body = _.pick(req.body,['email','password']);
+    var user = new User(body);
+    
+    user.save().then((user)=>{
+        res.send(user);
+    }).catch((e)=>{
+        res.status(401).send();
+    });
+
+ });
 
 app.listen(port, ()=>{ 
     console.log(`Server is running at port ${port}`);
