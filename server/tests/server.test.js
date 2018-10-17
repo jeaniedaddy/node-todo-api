@@ -3,25 +3,11 @@ const expect = require('expect');
 const {ObjectID} = require('mongodb');
 var {app} = require('../server.js');
 const {Todo} = require('../models/Todo.js');
+const {User} = require('../models/User.js');
+const {seedTodos, seedUsers, todos, users} = require('./seed.js');
 
-
-var todos = [{
-    _id: new ObjectID(),
-    text: 'first thing to do'
-},{
-    _id: new ObjectID(),
-    text: 'secound thing to do',
-    completed: true,
-    completedAt: 3333
-}];
-
-beforeEach((done)=>{
-    Todo.deleteMany({}).then(()=> {
-        return Todo.insertMany(todos);
-    }).then(()=>{
-        done();
-    });
-});
+beforeEach(seedTodos);
+beforeEach(seedUsers);
 
 describe('Todo App', ()=>{
     describe('POST /todos',()=>{
@@ -181,6 +167,21 @@ describe('Todo App', ()=>{
                 })
                 .end(done); 
         });
+    });
+
+    describe('POST /users',()=>{
+        it('should save a user',(done)=>{
+            request(app)
+                .post('/users')
+                .send(users[0])
+                .expect(200)
+                .expect((res)=>{
+                    expect(res.body.email).toBe(users[0].email);
+                    // expect(res.header('x-auth')).
+                })
+                .end(done);
+        });
+        // it('should return user data',(done)=>{});
     });
     
 });

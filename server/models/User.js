@@ -45,12 +45,10 @@ UserSchema.pre('save',function(next){
 });
 
 UserSchema.statics.generateAuthToken = function(user){
-    console.log('3',user);
     var screteWord = 'abc123';
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access}, screteWord);
     user.tokens.push({access, token});
-    console.log('4',user);    
     return token; 
     // user.save();
 };
