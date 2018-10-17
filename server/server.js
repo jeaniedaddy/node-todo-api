@@ -6,9 +6,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var {mongoose} = require('./db/mongoose'); // this mongoose vs the mongoose in model js files. how are they connected?
 var {ObjectID} = require('mongodb');
+var jwt = require('jsonwebtoken');
 
 const {Todo} = require('./models/Todo');
 const {User} = require('./models/User');
+const {authenticate} = require('./middleware/authenticate');
 
 const port = process.env.PORT ;
 
@@ -112,13 +114,24 @@ app.post('/users', (req,res) =>{
     var body = _.pick(req.body,['email','password']);
     var user = new User(body);
     
+    console.log(body);
     user.save().then((user)=>{
-        res.send(user);
+        console.log('1',user);
+        var token = User.generateAuthToken(user)
+        user.save().then((user)=>{
+            res.header('x-auth',token).send(user);
+        });
+        
     }).catch((e)=>{
-        res.status(401).send();
+        res.status(401).send(e);
     });
 
- });
+});
+
+app.get('/users/me', authenticate, (req,res)=>{
+    res.send(req.user);
+});
+
 
 app.listen(port, ()=>{ 
     console.log(`Server is running at port ${port}`);
